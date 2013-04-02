@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #define m_maxnum 5
 #define n_maxnum 5
+
 struct stack_str {
     char data;
     struct stack_str *prev;
@@ -27,7 +28,6 @@ struct stack_str *pop(struct stack_str *head)
     free(head);
     return prev_elem;
 }
-
 
 char see(struct stack_str *head)
 {
@@ -54,7 +54,7 @@ void check_string(int str_size)
         (struct stack_str *) malloc(sizeof(struct stack_str));
 
     for (i = 0; i < str_size && !EXIT; i++) {
-        c = getchar();
+        while ((c = getchar()) == '\n');
         if (c == '.' || c == ':' || c == ';')
             break;
         if (c == '(' || c == '[' || c == '{') {
@@ -84,16 +84,31 @@ void check_string(int str_size)
         }
     }
     if (EXIT) {
-        puts("false");
+        puts("wrong");
         return;
     }
-    if (!stacksize) puts("true"); else puts("false");
+    if (!stacksize)
+        puts("correctly");
+    else
+        puts("wrong");
     free_stack(stack_head, stacksize);
 }
 
-int main()
+void readme(char *argv[])
 {
-    char m[m_maxnum], n[n_maxnum], c;
+    if (!strcmp(argv[1], "-h")) {
+        printf
+            ("Help: \n"
+             "1) Enter m (count of strings) and n (count of symbols)\n"
+             "2) Enter each string. End of string - : ; .\n"
+             "If can't enter more than n symbols, entering of string stop automatically\n");
+        exit(0);
+    }
+}
+
+void input_and_start_check(void)
+{
+    char m[m_maxnum], n[n_maxnum];
     int i, m_int, n_int;
     puts("Enter m");
     fgets(m, m_maxnum, stdin);
@@ -102,10 +117,15 @@ int main()
     m_int = atoi(m);
     n_int = atoi(n);
     for (i = 0; i < m_int; i++) {
-        printf("Enter %d string\n", i + 1);
+        printf("Enter %d string, {. : ;} - end of string\n", i + 1);
         check_string(n_int);
-        while((c = getchar()) != '\n' && c != EOF);
     }
+}
 
+int main(int argc, char *argv[])
+{
+    if (argc > 1)
+        readme(argv);
+    input_and_start_check();
     return 0;
 }
