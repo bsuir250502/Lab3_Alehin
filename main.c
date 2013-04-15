@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #define m_maxnum 5
 #define n_maxnum 5
+#define buf_size 1024
 
 struct stack_str {
     char data;
@@ -36,62 +37,60 @@ char see(struct stack_str *head)
     return head->data;
 }
 
-void free_stack(struct stack_str *head, int stack_size)
+void free_stack(struct stack_str *head)
 {
-    struct stack_str *temp_p;
-    for (; stack_size; stack_size--) {
-        temp_p = head;
-        head = head->prev;
-        free(temp_p);
+    struct stack_str *current, *next;
+
+    for (current = head; current; current = next) {
+        next = current->prev;
+        free(current);
     }
 }
 
 void check_string(int str_size)
 {
-    int i, stacksize = 0, EXIT = 0;
-    char c;
-    struct stack_str *stack_head =
-        (struct stack_str *) malloc(sizeof(struct stack_str));
-
-    for (i = 0; i < str_size && !EXIT; i++) {
-        while ((c = getchar()) == '\n');
+    int i, stacksize = 0, exit = 0;
+    char c, str[buf_size];
+    struct stack_str *stack_head = NULL;
+    fgets(str, buf_size, stdin);
+    for (i = 0; i < str_size && i < strlen(str); i++) {
+        c = str[i];
         if (c == '.' || c == ':' || c == ';')
             break;
         if (c == '(' || c == '[' || c == '{') {
             stack_head = push(c, stack_head);
-            stacksize++;
         }
         if (c == ')') {
             if (see(stack_head) == '(') {
                 stack_head = pop(stack_head);
-                stacksize--;
-            } else
-                EXIT = 1;
+            } else {
+                exit = 1;
+                break;
+            }
         }
         if (c == ']') {
             if (see(stack_head) == '[') {
                 stack_head = pop(stack_head);
-                stacksize--;
-            } else
-                EXIT = 1;
+            } else {
+                exit = 1;
+                break;
+            }
         }
         if (c == '}') {
             if (see(stack_head) == '{') {
                 stack_head = pop(stack_head);
-                stacksize--;
-            } else
-                EXIT = 1;
+            } else {
+                exit = 1;
+                break;
+            }
         }
     }
-    if (EXIT) {
+    if (exit || stack_head) {
         puts("wrong");
-        return;
-    }
-    if (!stacksize)
+    } else {
         puts("correctly");
-    else
-        puts("wrong");
-    free_stack(stack_head, stacksize);
+    }
+    free_stack(stack_head);
 }
 
 void readme(char *argv[])
@@ -116,6 +115,10 @@ void input_and_start_check(void)
     fgets(n, n_maxnum, stdin);
     m_int = atoi(m);
     n_int = atoi(n);
+    if (!m_int && !n_int) {
+        puts("###Error with typed m and n.");
+        exit(0);
+    }
     for (i = 0; i < m_int; i++) {
         printf("Enter %d string, {. : ;} - end of string\n", i + 1);
         check_string(n_int);
